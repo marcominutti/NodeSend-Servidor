@@ -3,12 +3,16 @@
 const { response } = require("express");
 const Usuario = require("../models/Usuario");
 const bcrypt = require("bcrypt");
+const { validationResult } = require("express-validator");
 exports.nuevoUsuario = async (req, res) => {
-  // comprobar si el usuario ya está registrado
-  let { email, password, nombre } = req.body;
-  if (!email || !password || !nombre) {
-    return res.status(400).json({ msg: "Todos los datos son obligatorios" });
+  const errores = validationResult(req);
+  if (!errores.isEmpty()) {
+    return res.status(400).json({ errores: errores.array() });
   }
+
+  let { email, password, nombre } = req.body;
+
+  // comprobar si el usuario ya está registrado
   let usuario = await Usuario.findOne({ email });
   if (usuario) {
     return res
