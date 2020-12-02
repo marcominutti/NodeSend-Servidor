@@ -2,9 +2,10 @@
 /** para poder guardar al usuario necesitamos del modelo **/
 const { response } = require("express");
 const Usuario = require("../models/Usuario");
+const bcrypt = require("bcrypt");
 exports.nuevoUsuario = async (req, res) => {
   // comprobar si el usuario ya está registrado
-  const { email, password, nombre } = req.body;
+  let { email, password, nombre } = req.body;
   if (!email || !password || !nombre) {
     return res.status(400).json({ msg: "Todos los datos son obligatorios" });
   }
@@ -14,8 +15,15 @@ exports.nuevoUsuario = async (req, res) => {
       .status(400)
       .json({ msg: "El email ya está registrado con otro usuario" });
   }
+  // vueltas para hasehar el password
+  const salt = await bcrypt.genSalt(10);
+  password = await bcrypt.hash(password, salt);
+  usuario = new Usuario({ nombre, password, email });
 
-  usuario = await new Usuario(req.body);
-  usuario.save();
-  res.json({ mensaje: "Usuario Creado" });
+  try {
+    await usuario.save();
+    res.json({ mensaje: "Usuario Creado" });
+  } catch (error) {
+    console.log(error);
+  }
 };
