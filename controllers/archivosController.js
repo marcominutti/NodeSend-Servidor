@@ -1,7 +1,7 @@
 const shortid = require("shortid");
 // Subida de archivos
 const multer = require("multer");
-
+const fs = require("fs");
 exports.subirArchivo = async (req, res, next) => {
   const configuracionMulter = {
     /*  si está autenticado el archivo 
@@ -33,4 +33,12 @@ exports.subirArchivo = async (req, res, next) => {
   });
 };
 
-exports.eliminarArchivo = async (req, res) => {};
+exports.eliminarArchivo = async (req, res) => {
+  console.log(req.archivo);
+  try {
+    fs.unlinkSync(__dirname + `/../uploads/${req.archivo}`);
+    console.log("Archivo eliminado");
+  } catch (error) {
+    console.log(error);
+  }
+};
